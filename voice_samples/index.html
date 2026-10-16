@@ -1,0 +1,17 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Voice Picker</title>
+<style>body{font-family:system-ui,sans-serif;background:#FFF6EA;color:#3A2418;max-width:720px;margin:0 auto;padding:16px}h1{font-size:22px}
+.row{background:#fff;border-radius:16px;padding:12px 16px;margin:10px 0;box-shadow:0 3px 0 rgba(58,36,24,.12)}.row b{display:block;margin-bottom:6px}
+button{border:0;border-radius:999px;padding:8px 14px;margin:4px 6px 4px 0;background:#F2E3D0;font:inherit;cursor:pointer}.orig{border:3px solid #D7263D}</style></head><body>
+<h1>Quale voce somiglia a Mimì?</h1>
+<div class="row orig"><b>ORIGINALE (Mimì)</b>
+<button onclick="clip(3,95.164,2.194)">▶ Ciao Stella! Guarda chi c'è!</button>
+<button onclick="clip(3,97.358,2.691)">▶ It's Pepe! Hello, Stella!</button></div>
+<div id="list"></div>
+<script>
+const A=new Audio();let t;
+function stop(){A.pause();clearTimeout(t)}
+function clip(f,s,d){stop();A.src='../a/voce_'+f+'.mp4';A.currentTime=s;A.play();t=setTimeout(()=>A.pause(),d*1000)}
+function file(n){stop();A.src=n;A.currentTime=0;A.play()}
+for(const [k,label] of [['jessica','Jessica — giocosa, dolce'],['laura','Laura — entusiasta, vivace'],['alice','Alice — britannica, insegnante']])
+ list.insertAdjacentHTML('beforeend',`<div class="row"><b>${label}</b><button onclick="file('${k}_it.mp3')">▶ Ciao Stella! Guarda chi c'è!</button><button onclick="file('${k}_en.mp3')">▶ It's Pepe! Hello, Stella!</button></div>`);
+</script></body></html>

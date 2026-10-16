@@ -1,0 +1,11 @@
+MIMÌ E PEPE - come aprire il gioco
+
+1. Estrai lo ZIP (doppio clic).
+2. Apri la cartella MimiPepe e fai doppio clic su index.html.
+   Si apre nel browser (Chrome, Safari, Edge, Firefox).
+3. Tocca il nome di chi gioca: il primo tocco attiva anche l'audio.
+
+Tutto funziona senza internet tranne il carattere del titolo (se manca si usa un carattere simile).
+Le voci sono già registrate dentro la cartella "a": il gioco non usa ElevenLabs né altre chiavi.
+Per metterlo online basta caricare l'intera cartella MimiPepe su un qualsiasi hosting statico
+(es. Netlify, GitHub Pages, Vercel).
