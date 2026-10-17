@@ -371,7 +371,7 @@
     }
   };
   function TEMPLATE(v2) {
-    return fe`<div style="min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; background: #FFF6EA; color: #3A2418; font-family: 'Baloo 2', 'Trebuchet MS', sans-serif">
+    return fe`<div data-screen=${v2.screenName} style="min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; background: #FFF6EA; color: #3A2418; font-family: 'Baloo 2', 'Trebuchet MS', sans-serif">
 
 ${v2.showHeader ? fe`
 <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px clamp(12px, 3vw, 32px)">
@@ -379,7 +379,7 @@ ${v2.showHeader ? fe`
 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M10 20v-6h4v6" /></svg>
 </button>
 <div style="flex: 1 1 180px; min-width: 0; font-size: clamp(28px, 3.6vw, 40px); font-weight: 800; line-height: 1; color: #C41E30">Mimì <span style="color: #3A2418; font-weight: 600">e</span> <span style="color: #D9741A">Pepe</span></div>
-<button class="pill" onClick=${v2.goStart} aria-label="Cambia chi gioca">
+<button class="pill" data-back="start" onClick=${v2.goStart} aria-label="Cambia chi gioca">
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5" /><circle cx="17.5" cy="9" r="2.6" /><path d="M17 14.2c2.6.2 4.2 2 4.6 4.8" /></svg>
 ${v2.profileLabel}
 </button>
@@ -590,7 +590,7 @@ ${c2.hasSwatch ? fe`<span style="width: 40px; height: 40px; border-radius: 50%; 
 ` : null}
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px">
-<button class="pill" onClick=${v2.goHome}>
+<button class="pill" data-back="home" onClick=${v2.goHome}>
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
 Torna a casa
 </button>
@@ -612,7 +612,7 @@ ${(v2.keys || []).map(function(k2) {
 `;
     })}
 </div>
-<button onClick=${v2.gateCancel} style="border: 0; background: transparent; font-size: 18px; font-weight: 700; color: #6B4A3A; text-decoration: underline; min-height: 44px">Annulla</button>
+<button data-back="cancel" onClick=${v2.gateCancel} style="border: 0; background: transparent; font-size: 18px; font-weight: 700; color: #6B4A3A; text-decoration: underline; min-height: 44px">Annulla</button>
 </div>
 </section>
 ` : null}
@@ -621,7 +621,7 @@ ${v2.isParents ? fe`
 <section style="flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; padding: 4px clamp(12px, 3vw, 32px) 40px; display: flex; flex-direction: column; gap: 16px">
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
 <h1 style="margin: 0; flex: 1 1 260px; font-size: clamp(30px, 3.6vw, 42px); font-weight: 800; line-height: 1">Area genitori</h1>
-<button class="pill" onClick=${v2.leaveParents}>Esci</button>
+<button class="pill" data-back="exit" onClick=${v2.leaveParents}>Esci</button>
 </div>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px">
@@ -4644,6 +4644,7 @@ ${v2.isNight ? fe`
       var turnKid = s2.turn;
       var micMine = s2.input && s2.voiceOk && this.micAllowed() && (prof === "soleil" || prof === "insieme" && turnKid === "soleil");
       return {
+        screenName: s2.screen,
         showHeader: s2.screen === "home" || s2.screen === "play",
         isStart: s2.screen === "start",
         isHome: s2.screen === "home",

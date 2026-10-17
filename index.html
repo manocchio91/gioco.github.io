@@ -67,6 +67,22 @@ button:disabled{cursor:default}
 html,body{height:auto}
 body{background:#FFF6EA;color:#3A2418}
 #boot{min-height:60vh;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2','Trebuchet MS',sans-serif;font-size:24px;font-weight:700;color:#C41E30}
+/* Telecomando / tastiera: focus sempre ben visibile */
+.tv-keys #app button:focus,.tv-keys #app a:focus,.tv-keys #app summary:focus{outline:6px solid #F28C28 !important;outline-offset:4px;box-shadow:0 0 0 10px rgba(255,255,255,.92) !important}
+.tv-keys #app .card:focus,.tv-keys #app .who:focus,.tv-keys #app .chip:focus{transform:scale(1.05);z-index:5}
+.tv-keys #app .item:focus{outline-offset:2px;border-radius:16px;z-index:450 !important;background:rgba(255,255,255,.35)}
+#app button:focus:not(:focus-visible){outline:none}
+.tv-keys #app button:focus:not(:focus-visible){outline:6px solid #F28C28 !important}
+html{scroll-padding:24px}
+/* Schermi TV (orizzontali e larghi): meno scorrimento verticale */
+@media (min-width:960px) and (min-aspect-ratio:16/10){
+  [data-screen="start"] .bg-wide{aspect-ratio:16/5 !important;min-height:200px !important}
+  [data-screen="start"] .who{min-height:150px !important;padding:12px !important}
+  [data-screen="home"] .card img{height:92px !important}
+  [data-screen="home"] h2{margin-top:2px !important}
+  [data-screen="night"] .bg-wide{aspect-ratio:16/6 !important}
+}
+@media (prefers-reduced-motion: reduce){.tv-keys #app .card:focus,.tv-keys #app .who:focus,.tv-keys #app .chip:focus{transform:none}}
 </style>
 </head>
 <body style="margin:0">
@@ -75,5 +91,6 @@ body{background:#FFF6EA;color:#3A2418}
 <script src="a/three.min.js"></script>
 <script src="a/v/index.js"></script>
 <script src="app.js"></script>
+<script src="tv-nav.js"></script>
 </body>
 </html>
