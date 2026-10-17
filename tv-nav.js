@@ -12,6 +12,8 @@
   function isBack(e) { return e.key === 'Escape' || e.key === 'Backspace' || e.key === 'BrowserBack' || e.key === 'GoBack' || e.keyCode === 461 || e.keyCode === 10009 || e.keyCode === 27; }
   function isOk(e) { return e.key === 'Enter' || e.key === 'Accept' || e.key === 'Select' || e.keyCode === 13 || e.keyCode === 23; }
   var app = null, usingKeys = false;
+  /* modalità scelta nella prima schermata ("Telefono / tablet" o "TV con telecomando") */
+  function phoneMode() { return document.documentElement.classList.contains('dev-phone'); }
 
   function root() { return app || (app = document.getElementById('app')); }
   function screen() { var r = root() && root().querySelector('[data-screen]'); return r ? r.getAttribute('data-screen') : ''; }
@@ -57,7 +59,7 @@
     return win;
   }
   function preferred(list) {
-    var order = ['button.chip.go', 'button.chip', 'button.item.tap', 'button.who', 'button.card', '.pill'];
+    var order = ['button.chip.go', 'button.chip', 'button.item.tap', 'button.who', 'button.card', 'button[aria-label="Ripeti"]', '.pill'];
     for (var i = 0; i < order.length; i++) {
       var m = list.filter(function (el) { return el.matches(order[i]); });
       if (m.length) return m[0];
@@ -142,22 +144,30 @@
       /* Quando nel gioco compare una nuova domanda (scelte o oggetti da toccare), il focus va sulle risposte. */
       var targets = root() ? Array.prototype.filter.call(root().querySelectorAll('button.chip, button.item.tap'), visible) : [];
       var has = targets.length > 0;
-      if (has && !hadTargets && (usingKeys || !inApp(document.activeElement))) {
+      /* Telefono/tablet: le risposte possono essere sotto lo schermo -> le portiamo in vista (senza selezionarle). */
+      if (has && !hadTargets && !usingKeys && phoneMode()) {
+        var box = targets[targets.length - 1].closest('div') || targets[targets.length - 1];
+        show(box);
+      }
+      /* ...e dopo la scelta torniamo a mostrare il palco (personaggi che ballano, storia). */
+      if (!has && hadTargets && !usingKeys && phoneMode()) {
+        var stage = root().querySelector('.stagebox');
+        if (stage) show(stage);
+      }
+      if (has && !hadTargets && (usingKeys || !phoneMode())) {
         var cur = document.activeElement;
         if (!(inApp(cur) && cur.matches('button.chip, button.item.tap') && visible(cur))) focusEl(preferred(targets));
       }
       hadTargets = has;
-      if (usingKeys || !inApp(document.activeElement)) ensure();
+      if (usingKeys || (!phoneMode() && !inApp(document.activeElement))) ensure();
     });
   }
   function start() {
     if (!root()) return setTimeout(start, 100);
     new MutationObserver(onChange).observe(root(), { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'class'] });
-    /* su telefoni e tablet touch non selezioniamo nulla all'avvio */
-    var touchOnly = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    if (!touchOnly) onChange(); else armOnly();
+    /* su telefono/tablet (scelto nella prima schermata) non selezioniamo nulla: si usa il tocco */
+    if (!phoneMode()) onChange(); else arm();
   }
-  function armOnly() { arm(); }
   document.addEventListener('mousedown', function () { usingKeys = false; document.documentElement.classList.remove('tv-keys'); }, true);
   document.addEventListener('touchstart', function () { usingKeys = false; document.documentElement.classList.remove('tv-keys'); }, { capture: true, passive: true });
   start();

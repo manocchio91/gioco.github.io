@@ -83,6 +83,15 @@ html{scroll-padding:24px}
   [data-screen="night"] .bg-wide{aspect-ratio:16/6 !important}
 }
 @media (prefers-reduced-motion: reduce){.tv-keys #app .card:focus,.tv-keys #app .who:focus,.tv-keys #app .chip:focus{transform:none}}
+/* Scelta dispositivo nella prima schermata */
+.devtabs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:#FFFFFF;border-radius:999px;padding:6px 8px;box-shadow:0 4px 0 rgba(58,36,24,.1)}
+.devq{font-size:17px;font-weight:800;color:#6B4A3A;padding:0 8px}
+.devtab{border:0;border-radius:999px;background:transparent;min-height:52px;padding:6px 18px;display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:18px;font-weight:800;color:#3A2418;cursor:pointer}
+.devtab.on{background:#D7263D;color:#FFFFFF;box-shadow:0 4px 0 rgba(58,36,24,.18)}
+/* Browser TV più vecchi senza aspect-ratio: il palco del gioco avrebbe altezza 0 (schermo vuoto) */
+@supports not (aspect-ratio: 1 / 1){
+  .stagebox{height:0 !important;padding-top:56.25% !important}
+}
 </style>
 </head>
 <body style="margin:0">
