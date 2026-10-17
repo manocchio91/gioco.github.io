@@ -2032,6 +2032,46 @@ ${v2.isNight ? fe`
     ] }
   ];
   /* Dispositivo: telefono/tablet (tocco) o TV (telecomando). Scelto nella prima schermata e ricordato. */
+  /* Un solo contesto audio, sbloccato al primo tasto del telecomando, clic o tocco. */
+  var MPAC = null;
+  function mpAudio() {
+    if (!MPAC) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC)
+        return null;
+      try {
+        MPAC = new AC();
+      } catch (e2) {
+        return null;
+      }
+    }
+    if (MPAC.state === "suspended") {
+      try {
+        MPAC.resume();
+      } catch (e2) {
+      }
+    }
+    return MPAC;
+  }
+  function mpUnlock() {
+    var ac = mpAudio();
+    if (!ac || mpUnlock.done)
+      return;
+    try {
+      var b2 = ac.createBuffer(1, 1, 22050), src = ac.createBufferSource();
+      src.buffer = b2;
+      src.connect(ac.destination);
+      if (src.start)
+        src.start(0);
+      else
+        src.noteOn(0);
+    } catch (e2) {
+    }
+    mpUnlock.done = ac.state === "running";
+  }
+  ["keydown", "click", "touchend"].forEach(function(ev) {
+    document.addEventListener(ev, mpUnlock, true);
+  });
   function getDevice() {
     if (window.MP_DEV)
       return window.MP_DEV;
@@ -2404,15 +2444,53 @@ ${v2.isNight ? fe`
     }
     /* ---------- suoni ---------- */
     audio() {
-      if (!this.ac) {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC)
-          return null;
-        this.ac = new AC();
-      }
-      if (this.ac.state === "suspended")
-        this.ac.resume();
+      this.ac = mpAudio();
       return this.ac;
+    }
+    /* Musica registrata (a/musica_*.mp4) suonata con un elemento audio: funziona anche sulle TV
+       dove gli effetti sintetizzati (Web Audio) restano muti. Se non parte, si usa il sintetizzatore. */
+    playTrack(name, fallback) {
+      var self = this;
+      try {
+        var el = this.musicEl;
+        if (!el || el.mpName !== name) {
+          if (el)
+            el.pause();
+          el = new Audio("a/musica_" + name + ".mp4");
+          el.loop = true;
+          el.preload = "auto";
+          el.mpName = name;
+          this.musicEl = el;
+        }
+        el.volume = getDevice() === "tv" ? 0.6 : 0.45;
+        try {
+          el.currentTime = 0;
+        } catch (e2) {
+        }
+        this.musicWant = name;
+        var gen = this.musicGen = (this.musicGen || 0) + 1;
+        var fb = function() {
+          if (self.musicGen === gen && self.musicWant === name && self.musicEl === el && !self.musicT) {
+            try {
+              el.pause();
+            } catch (e3) {
+            }
+            fallback();
+          }
+        };
+        el.onerror = fb;
+        var pr = el.play();
+        if (pr && pr.catch)
+          pr.catch(fb);
+        /* se dopo 3 secondi la musica non sta avanzando, usa il sintetizzatore */
+        setTimeout(function() {
+          if (!(el.currentTime > 0.2))
+            fb();
+        }, 3e3);
+        return true;
+      } catch (e2) {
+        return false;
+      }
     }
     tone(f2, dur, type, delay, vol) {
       var ac = this.audio();
@@ -2452,14 +2530,25 @@ ${v2.isNight ? fe`
     startMusic() {
       this.stopMusic();
       var self = this, seq = [523, 659, 784, 659, 587, 698, 880, 698, 523, 659, 784, 1046, 988, 784, 659, 587], i2 = 0;
-      this.musicT = setInterval(function() {
-        self.tone(seq[i2 % seq.length], 0.18, "triangle", 0, 0.12);
-        if (i2 % 2 === 0)
-          self.tone(seq[i2 % seq.length] / 2, 0.22, "sine", 0, 0.1);
-        i2++;
-      }, 230);
+      var synth = function() {
+        self.musicT = setInterval(function() {
+          self.tone(seq[i2 % seq.length], 0.18, "triangle", 0, 0.12);
+          if (i2 % 2 === 0)
+            self.tone(seq[i2 % seq.length] / 2, 0.22, "sine", 0, 0.1);
+          i2++;
+        }, 230);
+      };
+      if (!this.playTrack("festa", synth))
+        synth();
     }
     stopMusic() {
+      this.musicWant = null;
+      if (this.musicEl) {
+        try {
+          this.musicEl.pause();
+        } catch (e2) {
+        }
+      }
       if (this.musicT) {
         clearInterval(this.musicT);
         this.musicT = null;
@@ -4369,6 +4458,16 @@ ${v2.isNight ? fe`
     beatLoop(bpm, melody) {
       this.stopMusic();
       var self = this, beatMs = 6e4 / bpm, i2 = 0, mv = getDevice() === "tv" ? 2 : 1.3;
+      var track = bpm === 112 ? "freeze" : melody[0] === 523 ? "baby" : melody[0] === 392 ? "party" : melody[1] === 523 ? "disco" : "tarantella";
+      if (this.playTrack(track, function() {
+        self.beatSynth(bpm, melody, mv);
+      }))
+        return beatMs;
+      this.beatSynth(bpm, melody, mv);
+      return beatMs;
+    }
+    beatSynth(bpm, melody, mv) {
+      var self = this, beatMs = 6e4 / bpm, i2 = 0;
       this.musicT = setInterval(function() {
         var half = i2 % 2, beatN = Math.floor(i2 / 2);
         if (!half) {
